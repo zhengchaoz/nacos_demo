@@ -1,0 +1,8 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: nacos-provider
+  cloud:
+    nacos:
+      server-addr: localhost:8848 #从哪里去查找服务
