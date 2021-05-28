@@ -5,4 +5,5 @@ spring:
     name: nacos-consumer
   cloud:
     nacos:
-      server-addr: localhost:8848 #从哪里去查找服务
+      discovery:
+        server-addr: localhost:8848 #从哪里去查找服务
