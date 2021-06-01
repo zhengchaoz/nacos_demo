@@ -6,4 +6,9 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: localhost:8848 #从哪里去查找服务
+        server-addr: localhost:8848   # 从哪里去查找服务
+    sentinel:
+      transport:
+        port: 8099                    # 跟sentinel控制台交流的端口,随意指定一个未使用的端口即可
+        dashboard: localhost:8180     # 指定sentinel控制台地址
+      eager: true                     # 当前服务启动时，是否sentinel进行建立连接，否则就是访问的时候才建立连接

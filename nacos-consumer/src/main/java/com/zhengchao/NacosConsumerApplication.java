@@ -8,6 +8,7 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,7 +18,8 @@ import org.springframework.web.client.RestTemplate;
  * <p>服务消费方</p>
  * 两种客户端负载均衡：<br>
  * 1.默认是Nacos集成了Ribbon来实现的，Ribbon配合RestTemplate，可以非常容易的实现服务之间的访问。
- * 代码实现：
+ *   没有访问nacos，缺点是不支持高并发<br>
+ * 封装前，代码实现：
  * <pre>{@code
  *          @Autowired
  *          private LoadBalancerClient loadBalancerClient;
@@ -28,7 +30,7 @@ import org.springframework.web.client.RestTemplate;
  *      }</pre>
  * <p>
  * 2.在RestTemplate上增加@LoadBalanced注解，使用服务名的方式远程访问，该注解是Spring自带的负载均衡器.
- * 代码实现：
+ * 封装后，代码实现：
  * <pre>{@code
  *          @EnableDiscoveryClient
  *          @SpringBootApplication
@@ -45,6 +47,7 @@ import org.springframework.web.client.RestTemplate;
  * @author 郑超
  * @create 2021/5/28
  */
+@EnableFeignClients
 @EnableDiscoveryClient
 @SpringBootApplication
 public class NacosConsumerApplication {
@@ -79,6 +82,13 @@ public class NacosConsumerApplication {
 //            String url = String.format("http://%s:%s/provider/echo/%s",
 //                    choose.getHost(), choose.getPort(), appName);
             // 用服务名访问提供者，需要@EnableDiscoveryClient和@LoadBalanced
+            String url = String.format("http://nacos-provider/provider/echo/%s", appName);
+            System.out.println("request url:" + url);
+            return restTemplate.getForObject(url, String.class);
+        }
+
+        @GetMapping("/consumer/doLoadBalanced")
+        public String doLoadBalanced() {
             String url = String.format("http://nacos-provider/provider/echo/%s", appName);
             System.out.println("request url:" + url);
             return restTemplate.getForObject(url, String.class);
