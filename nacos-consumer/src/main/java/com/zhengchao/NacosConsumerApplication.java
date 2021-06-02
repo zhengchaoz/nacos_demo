@@ -1,5 +1,7 @@
 package com.zhengchao;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.zhengchao.service.ConsumerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -11,14 +13,17 @@ import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>服务消费方</p>
  * 两种客户端负载均衡：<br>
  * 1.默认是Nacos集成了Ribbon来实现的，Ribbon配合RestTemplate，可以非常容易的实现服务之间的访问。
- *   没有访问nacos，缺点是不支持高并发<br>
+ * 没有访问nacos，缺点是不支持高并发<br>
  * 封装前，代码实现：
  * <pre>{@code
  *          @Autowired
@@ -76,11 +81,17 @@ public class NacosConsumerApplication {
         @Autowired
         private RestTemplate restTemplate;
 
+        @Autowired
+        private ConsumerService consumerService;
+
         @GetMapping("/consumer/doRestEcho")
         public String doRestEcho() {
 //            ServiceInstance choose = loadBalancerClient.choose("nacos-provider");
 //            String url = String.format("http://%s:%s/provider/echo/%s",
 //                    choose.getHost(), choose.getPort(), appName);
+
+            System.out.println(consumerService.doGetReference());
+
             // 用服务名访问提供者，需要@EnableDiscoveryClient和@LoadBalanced
             String url = String.format("http://nacos-provider/provider/echo/%s", appName);
             System.out.println("request url:" + url);
@@ -88,10 +99,19 @@ public class NacosConsumerApplication {
         }
 
         @GetMapping("/consumer/doLoadBalanced")
-        public String doLoadBalanced() {
+        public String doLoadBalanced() throws InterruptedException {
+            TimeUnit.SECONDS.sleep(5);
+            System.out.println(consumerService.doGetReference());
+
             String url = String.format("http://nacos-provider/provider/echo/%s", appName);
             System.out.println("request url:" + url);
             return restTemplate.getForObject(url, String.class);
+        }
+
+        @GetMapping("/consumer/findById")
+        @SentinelResource("doFindById")
+        public String doFindById(@RequestParam("id") Integer id) {
+            return "hot id is " + id;
         }
     }
 

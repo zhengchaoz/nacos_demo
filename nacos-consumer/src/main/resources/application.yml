@@ -12,3 +12,12 @@ spring:
         port: 8099                    # 跟sentinel控制台交流的端口,随意指定一个未使用的端口即可
         dashboard: localhost:8180     # 指定sentinel控制台地址
       eager: true                     # 当前服务启动时，是否sentinel进行建立连接，否则就是访问的时候才建立连接
+      web-context-unify: false        # 关闭URL PATH聚合，这样链路之间互不影响，true的话，多个URL PATH聚合成一个链路sentinel_spring_web_context
+      datasource:
+        ds:
+          nacos:
+            server-addr: localhost:8848     # nacos连接地址
+            group-id: DEFAULT_GROUP         # nacos连接的分组
+            rule-type: flow                 # 路由存储规则
+            data-id: nacos-consumer         # 读取配置文件的 data-id
+            data-type: json                 # 读取配置文件类型为json
