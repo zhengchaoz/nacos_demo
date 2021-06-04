@@ -1,0 +1,27 @@
+server:
+  port: 9000
+spring:
+  application:
+    name: sca-gateway
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+    gateway:
+      discovery:
+        locator:
+          enabled: true         # 开启通过服务注册中心的serviceId创建路由
+      routes:                   # 路由规则可以放到配置中心，因为经常变动
+        - id: route01
+#          uri: http://localhost:8081/
+          uri: lb://nacos-provider      # lb为服务前缀，不能随意写  lb指的是从nacos中按照名称获取微服务,并遵循负载均衡策略
+          predicates:                   # 匹配规则，断言：多个规则都判断为真才会跳转
+            - Path=/nacos/provider/echo/**
+            - Page=10,20                # 自定义断言规则
+#            - Before=2021-06-09T00:00:00.000+08:00
+#            - Method=GET
+          filters:
+            - StripPrefix=1             # 转发之前去掉path中第一层路径，例如nacos
+logging:
+  level:
+    org.springframework.cloud.gateway: debug
