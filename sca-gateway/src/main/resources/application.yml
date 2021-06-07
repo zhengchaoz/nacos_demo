@@ -27,6 +27,11 @@ spring:
 #            - Method=GET
           filters:
             - StripPrefix=1               # 转发之前去掉path中第一层路径，例如nacos
+  zipkin:
+    base-url: localhost:9411              # zipkin查询服务器实例的URL，默认是http://localhost:9411/，要部署到其他机器，不能省略
+  sleuth:
+    sampler:
+      probability: 1.0                    # 默认的采样率是10%
 logging:
   level:
     org.springframework.cloud.gateway: debug
